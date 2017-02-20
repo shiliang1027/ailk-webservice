@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="gbk" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.linkage.module.alarm.customerdispatch.dao.CustomerDispatchDaoImp">
+	<!-- 查询投诉工单 -->
+	<select id="selectSheet"
+		parameterType="com.linkage.module.alarm.customerdispatch.serv.mo.CustomerForm"
+		resultType="hashmap">
+		select sheetno as "sheetno" from ta_complaint_dispatch
+		<where>
+			sheetno=#{formNo}
+		</where>
+	</select>
+
+	<!-- 查询投诉工单 -->
+	<update id="updateSheet"
+		parameterType="com.linkage.module.alarm.customerdispatch.serv.mo.CustomerForm">
+		update ta_complaint_dispatch set sheettitle=#{title}
+		<if test="complainLevel != null and complainLevel != 'null' and complainLevel != ''">
+			,urgency_level_name=#{complainLevel}
+		</if>
+		<if test="complainCityName != null and complainCityName != 'null' and complainCityName != ''">
+			,failureoccurcity=#{complainCityName}
+		</if>
+		<if test="countryCode != null and countryCode != 'null' and countryCode != ''">
+			,failureoccurcountry=#{countryCode}
+		</if>
+		<if test="groupCustomerManager != null and groupCustomerManager != 'null' and groupCustomerManager != ''">
+			,rel_man=#{groupCustomerManager}
+		</if>
+		<if test="groupName != null and groupName != 'null' and groupName != ''">
+			,groupcustomer=#{groupName}
+		</if>
+		<if test="groupCode != null and groupCode != 'null' and groupCode != ''">
+			,customerid=#{groupCode}
+		</if>
+		<if test="businessType != null and businessType != 'null' and businessType != ''">
+			,bussiness=#{businessType}
+		</if>
+		<where>
+			sheetno=#{formNo}
+		</where>
+	</update>
+
+	<!-- 保存投诉工单 -->
+	<insert id="insert" 
+		parameterType="com.linkage.module.alarm.customerdispatch.serv.mo.CustomerForm">
+   		<![CDATA[
+			insert into ta_complaint_dispatch(
+				sheetno,
+				sheetid,
+				sheettitle,
+				urgency_level_name,
+				sendtime,
+				sheettime,
+				failureoccurcity,
+				failureoccurcountry,
+				sheetstatus,
+				sheetpart,
+				createtime,
+				rel_man,
+				isgroupsheet,
+				groupcustomer,
+				customerid,
+				bussiness
+			)values(
+				#{formNo},
+				#{flowId},
+				#{title},
+				#{complainLevel},
+				#{startTime},
+				#{limitTime},
+				#{complainCityName},
+				#{countryCode},
+				2,
+				'待处理',
+				#{createtime},
+				#{groupCustomerManager},
+				1,
+				#{groupName},
+				#{groupCode},
+				#{businessType}
+			)
+   		]]>
+   	</insert>
+   	
+    <!-- 更新投诉工单 -->
+    <update id="update" 
+    	parameterType="hashmap">
+		update ta_complaint_dispatch set 
+		sheetstatus=3,
+		sheetpart=#{sheetPart}
+		<where>
+			sheetid=#{flowId}
+		</where>
+	</update>	
+	
+	<update id="colse" 
+    	parameterType="hashmap">
+		update ta_complaint_dispatch set 
+		sheetstatus=7,
+		closetime=#{closetime},
+		sheetpart='归档'
+		<where>
+			sheetid=#{flowId}
+		</where>
+	</update>
+</mapper>

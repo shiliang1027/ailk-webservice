@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.linkage.module.alarm.eoms.dao.EomsProjectSyncDAOImp">
+	<select id="query" resultType="hashmap" parameterType="string">
+		select sequ_id as "sequ_id",is_cancel as "is_cancel"
+		from tr_proj_info
+		<where>
+			sequ_id=#{sequId}
+		</where>
+	</select>
+	<delete id="deleteBelong" parameterType="string">
+		delete tr_proj_mo_rela
+		where proj_id_rela=#{sequId}
+	</delete>
+	<insert id="insert" parameterType="com.linkage.module.alarm.eoms.serv.mo.ProjectSyncMo">
+		insert into tr_proj_info(proj_id,sequ_id,city_id,start_time,end_time,work_scene,busi_type,
+		chg_type,is_cancel,effc_serv,info_title,project_person,pre_account,range_area)
+		values(#{INFO_ID},#{INFO_ID},#{REGION},#{EXPECTATIONBEGINTIME},#{EXPECTATIONENDTIME},#{PROJECTTYPE},
+		#{INFOTYPE},#{ADJUSTTYPE},2,#{ISEFFECTBUSINESS},#{INFOHEADER},#{SCENEPROLEADER},#{INFOANNOUNCEMENT},#{EQUIPBUSIRANGE})
+	</insert>
+	<update id="update" parameterType="com.linkage.module.alarm.eoms.serv.mo.ProjectSyncMo">
+		update tr_proj_info
+		set city_id=#{REGION},
+		start_time=#{EXPECTATIONBEGINTIME},
+		end_time=#{EXPECTATIONENDTIME},
+		work_scene=#{PROJECTTYPE},
+		busi_type=#{INFOTYPE},
+		chg_type=#{ADJUSTTYPE},
+		effc_serv=#{ISEFFECTBUSINESS},
+		info_title=#{INFOHEADER},
+		project_person=#{SCENEPROLEADER},
+		pre_account=#{INFOANNOUNCEMENT},
+		range_area=#{EQUIPBUSIRANGE}
+		<where>
+			sequ_id=#{INFO_ID}
+		</where>
+	</update>
+	<update id="updateStates" parameterType="com.linkage.module.alarm.eoms.serv.mo.ProjectSyncMo">
+		update tr_proj_info
+		set is_cancel=
+			<if test="FLAG==1">
+				0
+			</if>
+			<if test="FLAG==2">
+				1
+			</if>
+			<if test="FLAG==3">
+				-1
+			</if>
+		<where>
+			sequ_id=#{INFO_ID}
+		</where>
+	</update>
+	<update id="updateStates2" parameterType="com.linkage.module.alarm.eoms.serv.mo.ProjectSyncMo">
+		update ta_projshield_task
+		set dealstatus=
+			<if test="FLAG==1">
+				1
+			</if>
+			<if test="FLAG==2">
+				2
+			</if>
+			<if test="FLAG==3">
+				2
+			</if>
+		<where>
+			proj_id=#{INFO_ID}
+		</where>
+	</update>
+	<insert id="insertBelong" parameterType="com.linkage.module.alarm.eoms.serv.mo.NETADJUSTINFO">
+		insert into tr_proj_mo_rela(proj_id_rela,mo_id_rela,ne_name)
+		values(#{INFO_ID},#{MO_ID},#{NENAME})
+	</insert>
+	<update id="updateMoStates" parameterType="string">
+		update tr_mo_info a
+		set WORK_STAT=1
+		where a.mo_id in (select mo_id_rela from tr_proj_mo_rela where proj_id_rela=#{sequId})
+	</update>
+	<update id="rebackMoStates" parameterType="string">
+		update tr_mo_info a
+		set WORK_STAT=2
+		where a.mo_id in (select mo_id_rela from tr_proj_mo_rela where proj_id_rela=#{sequId})
+	</update>
+	<select id="queryMoInfo" parameterType="string" resultType="hashmap">
+		select mo_id as "mo_id"
+		from tr_mo_info
+		<where>
+			mo_name=#{mo_name}
+		</where>
+	</select>
+	<select id="queryMo" parameterType="string" resultType="hashmap">
+		select mo_id_rela as "mo_id"
+		from tr_proj_mo_rela
+		<where>
+			mo_id_rela is not null and proj_id_rela=#{sequId}
+		</where>
+	</select>
+	<select id="schTask1" parameterType="long" resultType="hashmap">
+		select proj_id as "proj_id"
+		from ta_projshield_task
+		<where>
+			dealstatus=0 and enable=0 and start_time&lt;=#{ts}
+		</where>
+	</select>
+	<select id="schTask2" parameterType="long" resultType="hashmap">
+		select proj_id as "proj_id"
+		from ta_projshield_task
+		<where>
+			dealstatus=1 and enable=0 and end_time&lt;=#{ts}
+		</where>
+	</select>
+	<select id="schTask3" parameterType="long" resultType="hashmap">
+		select proj_id as "proj_id"
+		from ta_projshield_task
+		<where>
+			dealstatus=0 and enable=1
+		</where>
+	</select>
+	<select id="schTask4" parameterType="long" resultType="hashmap">
+		select proj_id as "proj_id"
+		from ta_projshield_task
+		<where>
+			dealstatus=1 and enable=1
+		</where>
+	</select>
+</mapper>

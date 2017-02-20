@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	
+	<bean id="cms_weather_WeatherService"
+		class="com.linkage.module.weather.serv.WeatherService">
+	</bean>
+	
+	
+	<bean id="cms_weather_WeatherObserver"
+		class="com.linkage.module.weather.serv.observer.WeatherObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="cms_weather_WeatherService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topic">
+			<value>WEAHTER_QUERY</value>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 故障工单接收 -->
+	<bean id="ims_alarm_eoms_CustomerDispatchDao" class="com.linkage.module.alarm.customerdispatch.dao.CustomerDispatchDaoImp"
+		parent="baseDao"/>
+	<bean id="ims_alarm_eoms_CusComplaintCHGService"
+		class="com.linkage.module.alarm.customerdispatch.serv.CusComplaintCHGService">
+		<property name="dao">
+			<ref local="ims_alarm_eoms_CustomerDispatchDao"/>
+		</property>
+	</bean>
+	<bean id="ims_alarm_eoms_CusComplaintCHGObserver"
+		class="com.linkage.module.alarm.customerdispatch.serv.observer.CusComplaintCHGObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_CusComplaintCHGService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="operation">
+			<value>CUSPLAINTSHEET_CHANGE</value>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_CusComplaintSyncService"
+		class="com.linkage.module.alarm.customerdispatch.serv.CusComplaintSyncService">
+		<property name="dao">
+			<ref local="ims_alarm_eoms_CustomerDispatchDao"/>
+		</property>
+	</bean>
+	<bean id="ims_alarm_eoms_CusComplaintSyncObserver"
+		class="com.linkage.module.alarm.customerdispatch.serv.observer.CusComplaintSyncObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_CusComplaintSyncService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="operation">
+			<value>CUSPLAINTSHEET_SYNC</value>
+		</property>
+	</bean>
+</beans>

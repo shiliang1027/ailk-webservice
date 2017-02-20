@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-destroy-method="destroy" default-init-method="start" default-lazy-init="false">
+	<bean id="propertyplace" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+			lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath:log4j.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="log4jconfigdog" class="com.linkage.system.extend.log4j.Log4jConfigServer"
+		init-method="start">
+		<property name="config_path" value="classpath:log4j.properties" />
+	</bean>
+	
+	<!-- corba config -->
+	<bean id="abims_corbaService" class="com.linkage.system.utils.corba.CorbaService">
+		<property name="corbaServiceName" value="CorbaService"></property>
+		<property name="server_host" value="${system.corba.localhost}"></property>
+		<property name="corba_charset" value="UTF-8"></property>
+		<property name="corba_wcharset" value="UTF-16"></property>
+		<property name="namingServiceLoc"
+			value="${system.corba.rootior}"></property>
+	</bean>
+	<bean id="abims_cmqService" class="com.linkage.system.utils.corba.CorbaClientCreator">
+		<property name="creatorName" value="CMQ"></property>
+		<property name="sync" value="true"></property>
+		<property name="corbaService" ref="abims_corbaService"></property>
+		<property name="targetLocaltion"
+			value="${system.corba.cmq.service.name}"></property>
+		<property name="targetInterface" value="com.linkage.system.corbabus.CorbaBusAdpater"></property>
+	</bean>
+	<bean id="abims_cmqService_msgSupport" class="com.linkage.system.utils.corba.CorbaMsgSupport">
+		<property name="corbaBusAdpater" ref="abims_cmqService"></property>
+		<property name="charset" value="ISO-8859-1"></property>
+	</bean>
+	
+	<bean id="abims_AlarmCenter" class="com.linkage.system.utils.corba.CorbaClientCreator">
+		<property name="creatorName" value="AlarmCenter"></property>
+		<property name="sync" value="true"></property>
+		<property name="corbaService" ref="abims_corbaService"></property>
+		<property name="targetLocaltion"
+			value="${system.corba.cmq.service.name}"></property>
+		<property name="targetInterface" value="com.linkage.system.corbabus.CorbaBusAdpater"></property>
+	</bean>
+	<bean id="abims_AlarmCenter_msgSupport" class="com.linkage.system.utils.corba.CorbaMsgSupport">
+		<property name="corbaBusAdpater" ref="abims_AlarmCenter"></property>
+		<property name="charset" value="ISO-8859-1"></property>
+	</bean>
+	
+	<!-- axis2 -->
+    <bean id="applicationContext" 
+         class="org.apache.axis2.extensions.spring.receivers.ApplicationContextHolder"/>
+         
+	<bean id="mainDataSource" class="com.linkage.system.jdbc.CommonDataSource" init-method="init" lazy-init="false">
+		<property name="driver" value="oracle.jdbc.driver.OracleDriver" /> 
+		<property name="driverUrl" value="jdbc:oracle:thin:@10.40.9.193:1521:ldims" /> 
+		<property name="user" value="tablequerymanager" /> 
+		<property name="password" value="mypassword123" /> 		
+		<property name="delegateProperties" value="user=tablequerymanager,password=mypassword123,CHARSET=GBK" /> 
+		<property name="alias" value="xml-test" /> 
+		<property name="maximumConnectionCount" value="10" /> 
+		<property name="minimumConnectionCount" value="5" /> 
+		<property name="simultaneousBuildThrottle" value="50" /> 
+		<property name="houseKeepingTestSql" value="select 1 from dual" /> 
+		<property name="initsql">
+		<value>select 1 from dual</value> 
+		</property>
+	</bean>
+	
+	<bean id="proxoolDriver" class="org.logicalcobwebs.proxool.ProxoolDriver"
+		lazy-init="false" />
+
+	<!-- mybatis config-->
+	<!-- oracle -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mainDataSource" />
+		<property name="configLocation" value="classpath:jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/linkage/**/mapper/common/*Mapper.xml
+				</value>
+				<value>
+					classpath*:com/linkage/**/mapper/oracle/*Mapper.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="sqlSessionTemplate" class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+	<bean id="baseDao" class="com.linkage.system.jdbc.jpa.JPABaseDAO" abstract="true">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"></property>
+	</bean>
+</beans>

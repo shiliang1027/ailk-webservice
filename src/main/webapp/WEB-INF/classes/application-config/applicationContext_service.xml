@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<import resource="classpath:/com/linkage/module/service/outer/applicationContext_ims_server.xml"/>
+	<!-- topic listener -->
+	<import resource="classpath:/com/linkage/system/designpattern/observer/applicationContext_liposs_event.xml"/>
+	<!-- gis -->
+	<import resource="classpath:/com/linkage/module/gis/applicationContext_gis_service.xml"/>
+	<!-- weather -->
+	<import resource="classpath:/com/linkage/module/weather/applicationContext_weather_service.xml"/>
+</beans>

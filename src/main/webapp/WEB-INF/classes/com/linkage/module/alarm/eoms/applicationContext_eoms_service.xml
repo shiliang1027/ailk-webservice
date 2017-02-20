@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 故障工单接收 -->
+	<bean id="ims_alarm_eoms_EomsProjectSyncDAO" class="com.linkage.module.alarm.eoms.dao.EomsProjectSyncDAOImp" parent="baseDao"/>
+	
+	<bean id="ims_alarm_eoms_EomsProjectSyncService"
+		class="com.linkage.module.alarm.eoms.serv.EomsProjectSyncService">
+		<property name="dao">
+			<ref local="ims_alarm_eoms_EomsProjectSyncDAO"/>
+		</property>
+		<property name="cms">
+			<ref bean="abims_cmqService_msgSupport"/>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_EomsProjectSyncObserver"
+		class="com.linkage.module.alarm.eoms.serv.observer.EomsProjectSyncObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_EomsProjectSyncService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topic">
+			<value>PROJECT_SYNC</value>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SchedulerTask"
+		class="com.linkage.module.alarm.eoms.sch.SchedulerTask" init-method="init">
+		<property name="dao">
+			<ref local="ims_alarm_eoms_EomsProjectSyncDAO"/>
+		</property>
+		<property name="cms">
+			<ref bean="abims_cmqService_msgSupport"/>
+		</property>
+	</bean>
+</beans>

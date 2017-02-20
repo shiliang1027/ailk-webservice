@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="ims_alarm_fault_OverTimeDAO" 
+		class="com.linkage.module.alarm.fault.dao.OverTimeDAOImp" parent="baseDao">
+		<property name="cms">
+			<ref bean="abims_cmqService_msgSupport"/>
+		</property>
+	</bean>
+	<!-- 故障工单接收 -->
+	
+	<bean id="ims_alarm_fault_SchedulerTask"
+		class="com.linkage.module.alarm.fault.sch.SchedulerTask" init-method="init">
+		<property name="dao">
+			<ref local="ims_alarm_fault_OverTimeDAO"/>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetChangeService"
+		class="com.linkage.module.alarm.fault.serv.SheetChangeService">
+		<property name="dao">
+			<ref local="ims_alarm_fault_OverTimeDAO"/>
+		</property>
+		<property name="ac">
+			<ref bean="abims_AlarmCenter_msgSupport"/>
+		</property>
+		<property name="targetInterface" value="com.linkage.module.alarm.fault.serv.mo.FaultMsg"/>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetChangeObserver"
+		class="com.linkage.module.alarm.fault.serv.observer.SheetChangeObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_SheetChangeService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topics">
+			<list>
+				<value>NORALARMSHEET_CHANGE</value>
+			</list>
+		</property>
+		<property name="lid">
+			<value>NORALARMSHEET_SYNC</value>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetSyncService"
+		class="com.linkage.module.alarm.fault.serv.SheetSyncService">
+		<property name="dao">
+			<ref local="ims_alarm_fault_OverTimeDAO"/>
+		</property>
+		<property name="ac">
+			<ref bean="abims_AlarmCenter_msgSupport"/>
+		</property>
+		<property name="targetInterface" value="com.linkage.module.alarm.fault.serv.mo.FaultSyncMsg"/>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetSyncObserver"
+		class="com.linkage.module.alarm.fault.serv.observer.SheetSyncObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_SheetSyncService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topics">
+			<list>
+				<value>NORALARMSHEET_SYNC</value>
+				<value>ADDITION_SYNC</value>
+			</list>
+		</property>
+		<property name="lid">
+			<value>NORALARMSHEET_CHANGE</value>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_AlarmQueryService"
+		class="com.linkage.module.alarm.fault.serv.AlarmQueryService">
+		<property name="dao">
+			<ref local="ims_alarm_fault_OverTimeDAO"/>
+		</property>
+		<property name="targetInterface" value="com.linkage.module.alarm.fault.serv.mo.AlarmMsg"/>
+		<property name="cs">
+			<ref bean="abims_corbaService"/>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_AlarmQueryObserver"
+		class="com.linkage.module.alarm.fault.serv.observer.AlarmQueryObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_AlarmQueryService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topics">
+			<list>
+				<value>GETCLEARALARMTIME</value>
+			</list>
+		</property>
+		<property name="lid">
+			<value>GETCLEARALARMTIME</value>
+		</property>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetSyncService_cust"
+		class="com.linkage.module.alarm.fault.serv.SheetSyncService">
+		<property name="dao">
+			<ref local="ims_alarm_fault_OverTimeDAO"/>
+		</property>
+		<property name="ac">
+			<ref bean="abims_AlarmCenter_msgSupport"/>
+		</property>
+		<property name="targetInterface"
+			value="com.linkage.module.alarm.fault.serv.mo.CustFaultMsg"/>
+	</bean>
+	
+	<bean id="ims_alarm_eoms_SheetSyncObserver_cust"
+		class="com.linkage.module.alarm.fault.serv.observer.SheetSyncObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_alarm_eoms_SheetSyncService_cust"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topics">
+			<list>
+				<value>CUSALARMSHEET_SYNC</value>
+				<value>CUSALARMSHEET_CHANGE</value>
+			</list>
+		</property>
+		<property name="lid">
+			<value>CUSALARMSHEET_SYNC</value>
+		</property>
+	</bean>
+</beans>

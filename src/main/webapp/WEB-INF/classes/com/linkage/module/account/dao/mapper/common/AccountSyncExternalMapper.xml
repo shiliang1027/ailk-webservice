@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linkage.module.account.dao.AccountSyncExternalDAOImp">
+
+	 <!-- update select -->
+	<select id="queryAccounts" resultType="hashmap"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO">
+		select pracct_name as "accLoginName",real_name as "perName",email as
+		"email", mobile as "perPhone",cancel_time as "accValidateMonth" from
+		linkage.mv_account_property
+		<where>
+			1=1
+			<if test="accLoginName != null">and pracct_name=#{accLoginName}</if>
+		</where>
+	</select>
+</mapper>

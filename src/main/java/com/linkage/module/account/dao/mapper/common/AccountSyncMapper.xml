@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linkage.module.account.dao.AccountSyncDAOImp">
+	<select id="queryMaxUserId" resultType="int"> select max(acc_oid) as
+		"maxNum" from tab_accounts</select>
+	
+	<!-- add -->
+	<insert id="addAccouts" parameterType="com.linkage.module.account.serv.mo.AccountMO"> insert into
+		tab_accounts(acc_oid,acc_loginname,acc_password,acc_validatemonth,pass_validatemonth,creator,creationdate,acc_pwd_time,acc_status,ims_phone,acc_type)
+		values(${accOid},#{accLoginName},#{password},${accValidateMonth},${passValidateMonth},${creator},sysdate,sysdate,${accStatus},#{ims_phone},${acc_type})
+	</insert>
+	
+	 <!-- delete -->
+	<delete id="deleteAccounts" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from
+		tab_accounts where acc_oid in(${accOid}) and acc_type = ${acc_type}
+	</delete>
+	<delete id="deletePersons" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from
+		tab_persons where per_acc_oid in(${accOid})</delete>
+	<delete id="deleteRole" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from tab_role
+		where acc_oid in(${accOid})</delete>
+	<delete id="deleteUserRole" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from
+		tab_acc_role where acc_oid in(${accOid})</delete>
+	<delete id="deleteArea" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from tab_area
+		where acc_oid in(${accOid})</delete>
+	<delete id="deleteUserArea" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from
+		tab_acc_area where acc_oid in(${accOid})</delete>
+	<delete id="deleteUserGroup" parameterType="com.linkage.module.account.serv.mo.AccountMO"> delete from
+		tab_acc_group where acc_oid in(${accOid})</delete>
+	 
+	
+	 
+	 <!-- update -->
+	<update id="updateAccouts" parameterType="com.linkage.module.account.serv.mo.AccountMO"> update tab_accounts
+		set
+		acc_validatemonth=${accValidateMonth},pass_validatemonth=${passValidateMonth},ims_phone=#{ims_phone}
+		where acc_oid=${accOid} and acc_type = ${acc_type}</update>
+	<update id="updatePersons" parameterType="com.linkage.module.account.serv.mo.AccountMO"> update tab_persons set
+		per_name=#{perName},per_phone=#{perPhone},per_email=#{email},per_remark=#{remark}
+		where per_acc_oid=${accOid}</update>
+	<update id="updateUserRole" parameterType="com.linkage.module.account.serv.mo.AccountMO"> update tab_acc_role
+		set role_id=${roleId},acc_oid=${accOid} where acc_oid=${accOid}
+	</update>
+	<update id="updateUserArea" parameterType="com.linkage.module.account.serv.mo.AccountMO"> update tab_acc_area
+		set area_id=${areaId},acc_oid=${accOid} where acc_oid=${accOid}
+	</update>
+	<update id="updateUserGroup" parameterType="com.linkage.module.account.serv.mo.AccountMO"> update tab_acc_group
+		set group_oid=${groupOid},acc_oid=${accOid} where acc_oid=${accOid}
+	</update>
+	 
+	 <!-- update select -->
+	<select id="queryAccounts" resultType="map"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO">
+		select acc_oid as "accOid",acc_loginname as
+		"accLoginName",acc_password as "password",acc_validatemonth as
+		"accValidateMonth",pass_validatemonth as "passValidateMonth",
+		acc_status as "accStatus",ims_phone "ims_phone" from tab_accounts
+		<where>
+			1=1 and acc_type = ${acc_type}
+			<if test="accOid != null">and acc_oid=${accOid}</if>
+			<if test="accLoginName != null">and acc_loginname=#{accLoginName}</if>
+		</where>
+	</select>
+	<select id="queryPersons" resultType="map"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO"> select per_name as "perName",per_phone as
+		"perPhone",per_email as "email",per_remark as "remark" from
+		tab_persons where per_acc_oid=${accOid}</select>
+	<select id="queryUserRole" resultType="map"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO"> select role_id as "roleId" from tab_acc_role where
+		acc_oid=${accOid}</select>
+	<select id="queryUserArea" resultType="map"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO"> select area_id as "areaId" from tab_acc_area where
+		acc_oid=${accOid}</select>
+	<select id="queryUserGroup" resultType="map"
+		parameterType="com.linkage.module.account.serv.mo.AccountMO"> select group_oid as "groupOid" from tab_acc_group where
+		acc_oid=${accOid}</select>
+</mapper>

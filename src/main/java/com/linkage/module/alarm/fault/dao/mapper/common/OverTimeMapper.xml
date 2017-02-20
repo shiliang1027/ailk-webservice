@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="gbk" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.linkage.module.alarm.fault.dao.OverTimeDAOImp">
+	<select id="queryOverTime" parameterType="long" resultType="com.linkage.module.alarm.fault.object.FaultDispatch">
+		select serialno
+		from ta_fault_dispatch
+		<where>
+			sheettime&lt;#{ts} and sheettime!=0 and sheetstatus&lt;7
+		</where> 
+	</select>
+	<update id="updateOverTime" parameterType="long">
+		update ta_fault_dispatch
+		set sheetstatus=9
+		<where>
+			sheettime&lt;#{ts} and sheettime!=0 and sheetstatus&lt;7
+		</where> 
+	</update>
+	<update id="createTableSpace" parameterType="hashmap">
+		alter table ta_hisfault_dispatch
+		add partition partition_${ts} values less than(${ts}) tablespace tbs_alarm 
+	</update>
+	<insert id="moveDispatch" parameterType="long">
+		insert into ta_hisfault_dispatch
+		select *
+		from ta_fault_dispatch
+		<where>
+			sheetclosetime&lt;#{ts}
+		</where>	
+	</insert>
+	<delete id="deleteDispatch" parameterType="long">
+		delete from ta_fault_dispatch
+		<where>
+			sheetclosetime&lt;#{ts}
+		</where>	
+	</delete>
+	<update id="updateSheetStatus" parameterType="hashmap">
+		update ta_fault_dispatch
+		set sheetstatus=#{sheetstatus},sheetpart=#{sheetpart},sheettime=#{sheettime},
+			sheetno=#{sheetno}
+		where serialno=#{alarmuniqueid}
+	</update>
+	<update id="syncSheetStatus" parameterType="hashmap">
+		update ta_fault_dispatch
+		set sheetstatus=#{sheetstatus},sheetpart=#{sheetpart}
+		<if test="sheettime!=null">
+			,sheettime=#{sheettime}
+		</if>
+		<if test="sheetstarttime!=null">
+			,sheetstarttime=#{sheetstarttime}
+		</if>
+		where sheetno=#{sheetno}
+	</update>
+	<update id="syncSheetStatusNotPart" parameterType="hashmap">
+		update ta_fault_dispatch
+		set sheetstatus=#{sheetstatus}
+		<if test="sheettime!=null">
+			,sheettime=#{sheettime}
+		</if>
+		<if test="sheetstarttime!=null">
+			,sheetstarttime=#{sheetstarttime}
+		</if>
+		where sheetno=#{sheetno}
+	</update>
+	<select id="querySheet" parameterType="hashmap" resultType="hashmap">
+		select serialno as "serialno",sheetpart as "sheetpart"
+		,sheettime as "sheettime",sheetstarttime as "sheetstarttime"
+		from ta_fault_dispatch
+		where sheetno=#{sheetno}
+	</select>
+	<select id="queryAlarm" parameterType="hashmap" resultType="hashmap">
+		select canceltime as "canceltime",alarmstatus as "alarmstatus",
+		systemname as "systemname",vendorserialno as "vendorserialno"
+		from ${tablename}
+		where alarmuniqueid=#{alarmuniqueid} 
+	</select>
+</mapper>

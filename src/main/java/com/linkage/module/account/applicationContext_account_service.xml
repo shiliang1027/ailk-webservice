@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="ims_account_AccountSyncDAO" class="com.linkage.module.account.dao.AccountSyncDAOImp" parent="baseDao"/>
+	
+	<bean id="ims_account_AccountSyncService"
+		class="com.linkage.module.account.serv.AccountSyncService">
+		<property name="dao">
+			<ref local="ims_account_AccountSyncDAO"/>
+		</property>
+		<property name="externalDao">
+			<ref local="ims_account_AccountSyncExternalDAO"/>
+		</property>
+	</bean>
+	
+	
+	<bean id="ims_account_AccountSyncObserver"
+		class="com.linkage.module.account.serv.observer.AccountSyncObserver"
+		init-method="addOberser">
+		<property name="bio">
+			<ref local="ims_account_AccountSyncService"/>
+		</property>
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="topic">
+			<value>ACCOUNT_SYNC</value>
+		</property>
+	</bean>
+	
+	<bean id="mainDataSourceExternal" class="com.linkage.system.jdbc.CommonDataSource" init-method="init" lazy-init="false">
+		<property name="driver" value="oracle.jdbc.driver.OracleDriver" /> 
+		<property name="driverUrl" value="jdbc:oracle:thin:@10.39.249.168:1521:test" /> 
+		<property name="user" value="zhongHeJianKongGuanLi" /> 
+		<property name="password" value="zhongHeJianKongGuanLi" /> 		
+		<property name="delegateProperties" value="user=zhongHeJianKongGuanLi,password=zhongHeJianKongGuanLi,CHARSET=GBK" /> 
+		<property name="alias" value="xml-test-external" /> 
+		<property name="maximumConnectionCount" value="10" /> 
+		<property name="minimumConnectionCount" value="5" /> 
+		<property name="simultaneousBuildThrottle" value="50" /> 
+		<property name="houseKeepingTestSql" value="select 1 from dual" /> 
+		<property name="initsql">
+		<value>select 1 from dual</value> 
+		</property>
+	</bean>
+	
+	<!-- mybatis config-->
+	<!-- oracle -->
+	<bean id="sqlSessionFactoryExternal" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mainDataSourceExternal" />
+		<property name="configLocation" value="classpath:jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/linkage/**/mapper/common/*Mapper.xml
+				</value>
+				<value>
+					classpath*:com/linkage/**/mapper/oracle/*Mapper.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="sqlSessionTemplateExternal" class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactoryExternal"></constructor-arg>
+	</bean>
+	<bean id="externalBaseDao" class="com.linkage.system.jdbc.jpa.JPABaseDAO">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplateExternal"></property>
+	</bean>
+	
+	
+	<bean id="ims_account_AccountSyncExternalDAO" class="com.linkage.module.account.dao.AccountSyncExternalDAOImp" parent="externalBaseDao"/>
+	
+	
+</beans>

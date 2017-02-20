@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="gbk" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.linkage.module.alarm.complaintdispatch.dao.ComplaintDispatchDaoImpl">
+	<!-- 保存投诉工单 -->
+	<insert id="saveComplaintDispath" 
+		parameterType="com.linkage.module.alarm.complaintdispatch.serv.mo.DispatchSyncMo">
+   		<![CDATA[
+			insert into ta_complaint_dispatch(
+				sheetno,
+				sheetid,
+				urgency_level_name,
+				sheettime,
+				sendtime,
+				firstclass,
+				secondclass,
+				rel_man,
+				failureoccurcity,
+				sheettitle,
+				sheetstatus
+			)values(
+				#{form_no},
+				#{prosecute_flowid},
+				#{urgency_level_name},
+				${acceptTime},
+				${dealTimeLimit},
+				#{firstclass},
+				#{secondclass},
+				#{rel_man},
+				#{pro_regionname},
+				#{prosecute_desc},
+				${sheetStatus}
+			)	
+   		]]>
+   	</insert>
+   	
+    <!-- 更新投诉工单 -->
+    <update id="updateShutComplaintDispatch" 
+    	parameterType="com.linkage.module.alarm.complaintdispatch.serv.mo.SheetStatusChangeMo">
+		update ta_complaint_dispatch set 
+		sheetstatus=${sheetStatus},
+		sheetpart=#{sheetPart},
+		closetime=${dealTimeLong}
+		<where>
+			sheetno=#{form_no}
+		</where>
+	</update>	
+	
+	<update id="updateComplaintDispatch" 
+    	parameterType="com.linkage.module.alarm.complaintdispatch.serv.mo.SheetStatusChangeMo">
+		update ta_complaint_dispatch set 
+		sheetstatus=${sheetStatus},
+		sheetpart=#{sheetPart}
+		<where>
+			sheetno=#{form_no}
+		</where>
+	</update>
+	
+	<update id="updateOutTimeComplaintDispatch"
+		parameterType="hashmap">
+		update ta_complaint_dispatch set
+		sheetstatus=9	
+		<where>
+			<![CDATA[ 
+				sheettime<#{currTime} and sheetstatus<7
+			]]>
+		</where>
+	</update>
+	
+	<insert id="moveComplaintDispatch" 
+		parameterType="hashmap">
+		insert into ${tableName}
+		select * from ta_complaint_dispatch
+		<where>
+			<![CDATA[ 
+				closetime<#{time}
+			]]>
+		</where>	
+	</insert>
+	
+	<delete id="deleteComplaintDispatch"
+		parameterType="hashmap">
+		delete from ta_complaint_dispatch
+		<where>
+			<![CDATA[ 
+				closetime<#{time}
+			]]>
+		</where>
+	</delete>
+	
+	<!-- 创建投诉工单历史记录月表 -->
+	<update id="createComplaintTable" parameterType="hashmap">
+		CREATE TABLE ${tableName}(
+  		SHEETNO            VARCHAR2(50)                    NOT NULL,
+   		SHEETID            VARCHAR2(50),
+   		SHEETTITLE         VARCHAR2(4000),
+   		URGENCY_LEVEL_NAME VARCHAR2(255),
+   		SPECIALTY          VARCHAR2(50),
+   		SENDTIME           NUMBER(10),
+   		SHEETTIME          NUMBER(10),
+   		FAILUREOCCURCITY   VARCHAR2(20),
+   		FAILUREOCCURCOUNTRY VARCHAR2(20),
+   		SHEETSTATUS        NUMBER(4),
+   		SHEETPART          VARCHAR2(100),
+   		SHEETURL           VARCHAR2(255),
+   		CLOSETIME          NUMBER(10),
+   		FIRSTCLASS         VARCHAR2(255),
+   		SECONDCLASS        VARCHAR2(255),
+   		CREATETIME         NUMBER(10),
+   		REL_MAN            VARCHAR2(255),
+   		ISGROUPSHEET       NUMBER(1),
+   		GROUPCUSTOMER      VARCHAR2(100),
+   		CUSTOMERCLASS      VARCHAR2(100),
+   		BUSSINESS          VARCHAR2(100),
+   		SAFELEVEL          VARCHAR2(100),
+   		CUSTOMERID         VARCHAR2(100),
+   		<!-- CONSTRAINT PK_TA_HISCOMPLAINT_YYYY_MM PRIMARY KEY (SHEETNO) -->
+   		CONSTRAINT ${pkTableName} PRIMARY KEY (SHEETNO)
+		)
+		TABLESPACE TBS_ALARM
+	</update>
+	
+</mapper>

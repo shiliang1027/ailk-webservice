@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<bean id="eoms_complaintDispatch_dao" class="com.linkage.module.alarm.complaintdispatch.dao.ComplaintDispatchDaoImpl" parent="baseDao"></bean>
+
+	<bean id="eoms_complaintDispatch_sync_service" class="com.linkage.module.alarm.complaintdispatch.serv.EomsComplaintDispatchSyncService">
+		<property name="complaintDispatchDao">
+			<ref bean="eoms_complaintDispatch_dao"/>
+		</property>
+	</bean>
+	
+	<bean id="eoms_complaintDispatch_sync_observer" class="com.linkage.module.alarm.complaintdispatch.serv.observer.EomsComplaintDispatchSyncObserver"
+		init-method="addOberser">
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="bio">
+			<ref bean="eoms_complaintDispatch_sync_service"/>
+		</property>
+		<property name="operation">
+			<value>PLAINTSHEET_CHANGE</value>
+		</property>
+	</bean>
+	
+	<bean id="eoms_complaintDispatch_change_service" class="com.linkage.module.alarm.complaintdispatch.serv.EomsComplaintDispatchChangeService">
+		<property name="complaintDispatchDao">
+			<ref bean="eoms_complaintDispatch_dao"/>
+		</property>
+	</bean>
+	
+	<bean id="eoms_complaintDispatch_change_observer" class="com.linkage.module.alarm.complaintdispatch.serv.observer.EomsComplaintDispatchChangeObserver"
+		init-method="addOberser">
+		<property name="topicEventCenter">
+			<ref bean="liposs_event_TopicEventCenter"/>
+		</property>
+		<property name="bio">
+			<ref bean="eoms_complaintDispatch_change_service"/>
+		</property>
+		<property name="operation">
+			<value>PLAINTSHEET_SYNC</value>
+		</property>
+	</bean>
+	
+	<bean id="complaintShedulerTask" class="com.linkage.module.alarm.complaintdispatch.serv.sheduler.ComplaintShedulerTask"
+		init-method="init">
+		<property name="complaintDispatchDao">
+			<ref bean="eoms_complaintDispatch_dao"/>
+		</property>
+	</bean>
+</beans>
